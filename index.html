@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Imyong Magic Note</title>
+    
+    <style>
+        :root {
+            /* Clean System Fonts */
+            --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            
+            --primary-color: #10b981; /* Mint Green */
+            --primary-dark: #059669;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --sub-text: #6b7280;
+            --accent-color: #f59e0b; /* Amber */
+            --danger-color: #ef4444;
+            --blue-color: #3b82f6;
+            --dark-btn: #374151;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; min-height: 100vh; font-family: var(--font-body); }
+        .app-container { width: 100%; max-width: 600px; background-color: var(--bg-color); display: flex; flex-direction: column; height: 100vh; overflow: hidden; border-left: 1px solid #e5e7eb; border-right: 1px solid #e5e7eb; position: relative; }
+
+        /* Header */
+        header { background-color: var(--card-bg); padding: 20px; padding-top: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; position: relative; }
+        .top-info-bar { position: absolute; top: 10px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.75rem; font-weight: 600; }
+        .d-day-badge { color: var(--danger-color); background-color: #fef2f2; padding: 4px 10px; border-radius: 12px; border: 1px solid #fee2e2; display: flex; align-items: center; gap: 4px; }
+        .visitor-badge { color: var(--blue-color); background-color: #eff6ff; padding: 4px 10px; border-radius: 12px; border: 1px solid #dbeafe; display: flex; align-items: center; gap: 4px; }
+        h1 { font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 10px; text-align: center; font-weight: 800; line-height: 1.3; }
+        .subtitle { text-align: center; font-size: 0.9rem; color: var(--sub-text); margin-bottom: 15px; font-weight: 500; }
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
+        .mode-btn { padding: 8px 16px; border: 1px solid #d1d5db; background: white; border-radius: 20px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--sub-text); }
+        .mode-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3); }
+
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #e5e7eb; background: var(--card-bg); }
+        .tab { flex: 1; text-align: center; padding: 15px; cursor: pointer; font-weight: 600; color: var(--sub-text); transition: 0.3s; }
+        .tab.active { color: var(--primary-color); border-bottom: 3px solid var(--primary-color); }
+
+        /* Content */
+        .content-area { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 80px; scroll-behavior: smooth; }
+        
+        /* Cards */
+        .category-block { margin-bottom: 15px; background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .category-header { padding: 18px; background-color: #fff; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-weight: 700; font-size: 1.05rem; color: var(--primary-dark); border-bottom: 1px solid transparent; }
+        .category-header:hover { background-color: #f9fafb; }
+        .category-header span { font-size: 0.8rem; color: #9ca3af; }
+        .category-content { display: none; background-color: #fdfdfd; }
+        .category-content.open { display: block; border-top: 1px solid #f3f4f6; }
+        .sentence-card { padding: 20px; border-bottom: 1px solid #f3f4f6; position: relative; transition: background-color 0.2s; }
+        .sentence-card:hover { background-color: #fafafa; }
+        .sentence-card:last-child { border-bottom: none; }
+        .card-tools { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .tool-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #d1d5db; transition: all 0.2s; padding: 4px; display: flex; align-items: center; justify-content: center; }
+        .tool-btn:hover { color: var(--sub-text); transform: scale(1.1); }
+        .tool-btn.star.active { color: var(--accent-color); }
+        .tool-btn.audio:hover { color: var(--primary-color); }
+        .tool-btn.delete { font-size: 1rem; color: #ef4444; opacity: 0.6; }
+        .tool-btn.delete:hover { opacity: 1; background-color: #fee2e2; border-radius: 4px; }
+        .tool-btn.edit { font-size: 1rem; color: #3b82f6; opacity: 0.6; }
+        .tool-btn.edit:hover { opacity: 1; background-color: #dbeafe; border-radius: 4px; }
+        .text-group { margin-bottom: 12px; }
+        .label { font-size: 0.7rem; font-weight: 700; color: #9ca3af; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .text-content { font-size: 1.05rem; line-height: 1.6; transition: all 0.3s; cursor: pointer; border-radius: 6px; padding: 2px 0; }
+        .en-text { color: #111827; font-weight: 600; margin-bottom: 15px; background-color: #f0fdf4; padding: 8px 10px; border-left: 3px solid var(--primary-color); }
+        .kr-text { color: #4b5563; padding: 0 10px; font-size: 0.95rem; }
+        .blur-en .en-text { color: transparent; text-shadow: 0 0 12px rgba(0,0,0,0.15); background-color: #e5e7eb; border-left-color: #d1d5db; user-select: none; }
+        .blur-en .en-text:active, .blur-en .en-text:hover { color: #111827; text-shadow: none; background-color: #f0fdf4; border-left-color: var(--primary-color); }
+        
+        .add-btn-area { padding: 15px; text-align: center; border-top: 1px solid #f3f4f6; }
+        .add-btn { width: 100%; padding: 12px; background-color: white; border: 1px dashed #d1d5db; color: var(--sub-text); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .add-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background-color: #f0fdf4; }
+
+        /* Feedback Section */
+        .feedback-section { background: white; border-radius: 12px; padding: 25px; margin-top: 30px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .feedback-title { font-size: 1.2rem; font-weight: 800; color: #1f2937; margin-bottom: 12px; }
+        .feedback-desc { font-size: 0.95rem; color: #4b5563; margin-bottom: 15px; line-height: 1.5; }
+        .feedback-link { color: var(--blue-color); text-decoration: none; font-weight: 600; }
+        
+        .feedback-input { width: 100%; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; resize: vertical; min-height: 100px; font-size: 1rem; font-family: inherit; background-color: #f9fafb; transition: all 0.2s; margin-bottom: 10px;}
+        .feedback-input:focus { outline: none; border-color: var(--primary-color); background-color: white; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        
+        .feedback-btn { width: 100%; padding: 14px; background-color: var(--dark-btn); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .feedback-btn:hover { background-color: #1f2937; }
+        .feedback-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+
+        /* Success Message */
+        #feedback-success-msg { display: none; color: #10b981; font-weight: 700; text-align: center; margin-top: 12px; font-size: 0.95rem; animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 25px; border-radius: 16px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); animation: slideUp 0.2s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-title { font-size: 1.2rem; font-weight: 800; color: var(--text-color); margin-bottom: 15px; text-align: center; }
+        .modal-message { text-align: center; color: var(--sub-text); margin-bottom: 20px; line-height: 1.5; }
+        .input-group { margin-bottom: 15px; }
+        .input-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--sub-text); margin-bottom: 6px; }
+        .input-field { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; resize: vertical; min-height: 80px; }
+        .input-field:focus { outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+        .btn-cancel { background-color: #f3f4f6; color: var(--sub-text); }
+        .btn-save { background-color: var(--primary-color); color: white; }
+        .btn-danger { background-color: var(--danger-color); color: white; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--sub-text); }
+    </style>
+    
+    <!-- Feedback Logic -->
+    <script>
+        function onFeedbackSubmit() {
+            // 사용자에게 보여줄 성공 메시지 처리
+            setTimeout(function() {
+                document.getElementById('feedback-success-msg').style.display = 'block';
+                document.getElementById('feedbackText').value = "";
+            }, 100);
+            return true; // 폼 전송 진행
+        }
+    </script>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <div class="top-info-bar">
+            <span class="d-day-badge" id="d-day-display">🍀 면접까지 D-??</span>
+            <!-- Visitor Count will be updated by Firebase -->
+            <span class="visitor-badge" id="visitor-display">👥 로딩 중...</span>
+        </div>
+        <h1>🪄 2026 초등 임용 2차 <br> 영어면접 만능 암기장</h1>
+        <p class="subtitle">영어 면접은 여기서 끝!</p>
+        <div class="controls">
+            <button class="mode-btn active" onclick="setMode('none')">전체 보기</button>
+            <button class="mode-btn" onclick="setMode('en')">🙈 영어 가리기</button>
+        </div>
+    </header>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('all')">주제별 카드</div>
+        <div class="tab" onclick="switchTab('bookmark')">My Pick ⭐</div>
+    </div>
+
+    <div class="content-area" id="content-area">
+        <!-- Content injected by JS -->
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <div class="modal-title" id="editModalTitle">📝 나만의 문장 추가</div>
+        <div class="input-group">
+            <label class="input-label">English (영어)</label>
+            <textarea id="inputEn" class="input-field" placeholder="I will use..."></textarea>
+        </div>
+        <div class="input-group">
+            <label class="input-label">Korean (한글)</label>
+            <textarea id="inputKr" class="input-field" placeholder="저는 ~을 사용할 것입니다."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn btn-cancel" onclick="closeEditModal()">취소</button>
+            <button class="modal-btn btn-save" onclick="saveItem()">저장하기</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal-content">
+        <div class="modal-title">🗑️ 삭제 확인</div>
+        <p class="modal-message">정말 이 문장을 삭제하시겠습니까?<br>삭제 후에는 복구할 수 없습니다.</p>
+        <div class="modal-actions">
+            <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">취소</button>
+            <button class="modal-btn btn-danger" onclick="confirmDelete()">삭제하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden Iframe for Feedback -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
+<!-- Main Application Logic -->
+<script>
+    // --- Default Data ---
+    const defaultData = [
+        {
+            category: "0. 만능 오프닝 & 클로징 (Opening/Closing)",
+            items: [
+                { en: "Let me answer the question number 1.", kr: "1번 문항에 대해 답변드리겠습니다." },
+                { en: "I'd like to talk about strategies to increase student motivation.", kr: "학생들의 동기를 높이기 위한 전략에 대해 말씀드리겠습니다." },
+                { en: "There are three things I can do to solve this problem.<br>First, I will use visual aids.<br>Second, I will use group activities.", kr: "이 문제를 해결하기 위해 제가 할 수 있는 3가지 방법이 있습니다.<br>첫째, 시각 자료를 활용하겠습니다.<br>둘째, 모둠 활동을 사용하겠습니다." },
+                { en: "If I become a teacher, I will try my best to support every student.", kr: "제가 교사가 된다면, 모든 학생을 지원하기 위해 최선을 다하겠습니다." },
+                { en: "By using these methods, the English class will be much better.", kr: "이러한 방법들을 사용함으로써, 영어 수업은 훨씬 더 좋아질 것입니다." },
+                { en: "That is all for my answer.<br>Thank you for listening.", kr: "이상입니다.<br>경청해 주셔서 감사합니다." }
+            ]
+        },
+        {
+            category: "1. 교사관 & 자기관리 (Teacher's Mindset)",
+            items: [
+                { en: "As a teacher, being healthy is very important.<br>I go jogging every morning to maintain my energy.", kr: "교사로서 건강은 매우 중요합니다.<br>저는 에너지를 유지하기 위해 매일 아침 조깅을 합니다." },
+                { en: "I'll always smile brightly at students.<br>It helps students feel happier and more comfortable.", kr: "저는 항상 학생들에게 밝게 웃어줄 것입니다.<br>이는 학생들이 행복하고 편안함을 느끼도록 돕습니다." },
+                { en: "I believe education is the best way to change the world.", kr: "저는 교육이 세상을 바꾸는 가장 좋은 방법이라고 믿습니다." },
+                { en: "I want to be a teacher who gives happiness to children.", kr: "저는 아이들에게 행복을 주는 교사가 되고 싶습니다." },
+                { en: "To relieve stress, I share my concerns with fellow teachers in the professional learning community.", kr: "스트레스를 해소하기 위해, 전문적 학습 공동체에서 동료 교사들과 고민을 나눕니다." },
+                { en: "I always try to develop myself by reading books about education and students' growth.", kr: "저는 교육과 학생 성장에 관한 책을 읽으며 항상 자기 계발을 하려 노력합니다." },
+                { en: "I am a patient person, so I can wait for slow learners to understand the lesson.", kr: "저는 인내심이 강한 사람이라, 느린 학습자가 수업을 이해할 때까지 기다려줄 수 있습니다." },
+                { en: "My optimistic attitude will have a good influence on my students.", kr: "저의 낙천적인 태도는 학생들에게 좋은 영향을 줄 것입니다." }
+            ]
+        },
+        {
+            category: "2. 생활지도 & 학급경영 (Classroom Management)",
+            items: [
+                { en: "Establishing classroom rules together encourages students to respect one another.", kr: "학급 규칙을 함께 만드는 것은 학생들이 서로를 존중하도록 장려합니다." },
+                { en: "By involving students in rule-making, they feel a sense of ownership and responsibility.", kr: "규칙 제정에 학생들을 참여시킴으로써, 그들은 주인의식과 책임감을 느낍니다." },
+                { en: "Instead of scolding, I will use positive reinforcement like praise and rewards.", kr: "꾸중하는 대신, 칭찬과 보상 같은 긍정적 강화를 사용하겠습니다." },
+                { en: "I will consult with my students constantly to understand their real minds and emotions.", kr: "학생들의 진심과 감정을 이해하기 위해 꾸준히 상담하겠습니다." },
+                { en: "For disruptive students, I will try to find the root cause through open communication.", kr: "수업을 방해하는 학생의 경우, 열린 대화를 통해 근본 원인을 찾으려 노력하겠습니다." },
+                { en: "I will give every student a specific role, such as a helper or a leader, to teach responsibility.", kr: "모든 학생에게 도우미나 리더 같은 역할을 부여하여 책임감을 가르치겠습니다." },
+                { en: "I will create a 'Class Mailbox' where students can write their concerns anonymously.", kr: "'학급 우체통'을 만들어 학생들이 익명으로 고민을 적을 수 있게 하겠습니다." },
+                { en: "When students get angry, I will ask them to think for 30 seconds before speaking.", kr: "학생들이 화가 났을 때는, 말하기 전에 30초간 생각해보라고 지도하겠습니다." }
+            ]
+        },
+        {
+            category: "3. 교수법 & 학습지도 (Teaching Methods)",
+            items: [
+                { en: "TPR (Total Physical Response) is useful to improve listening competence and lower the affective filter.", kr: "전신 반응 교수법(TPR)은 듣기 능력을 향상시키고 정의적 여과막을 낮추는 데 유용합니다." },
+                { en: "Using songs and games makes learning enjoyable and memorable for students.", kr: "노래와 게임을 활용하면 학생들에게 학습이 즐겁고 기억에 남게 됩니다." },
+                { en: "I will provide level-differentiated tasks. For example, guided worksheets for slow learners.", kr: "수준별 과제를 제공하겠습니다. 예를 들어, 느린 학습자에게는 가이드가 있는 학습지를 줍니다." },
+                { en: "Peer teaching allows students to teach and learn from each other, benefitting both high and low level students.", kr: "동료 교수법은 서로 가르치고 배우게 하여, 상위권과 하위권 학생 모두에게 이익이 됩니다." },
+                { en: "To improve speaking skills in an EFL context, I will create authentic situations using role-plays.", kr: "EFL 환경에서 말하기 능력을 키우기 위해, 역할극을 활용해 실제적인 상황을 만들겠습니다." },
+                { en: "I will use diagnostic assessment to check students' starting points and finding learning problems.", kr: "진단 평가를 활용하여 학생들의 출발점을 확인하고 학습 문제를 찾겠습니다." },
+                { en: "Process-oriented assessment helps students develop self-directed learning skills.", kr: "과정 중심 평가는 학생들이 자기 주도적 학습 능력을 기르는 데 도움이 됩니다." },
+                { en: "I will use scaffolding to help students achieve tasks they cannot do alone.", kr: "비계(Scaffolding)를 활용하여 학생들이 혼자서는 할 수 없는 과제를 달성하도록 돕겠습니다." }
+            ]
+        },
+        {
+            category: "4. 협력 & 공동체 (Cooperation)",
+            items: [
+                { en: "Group activities encourage teamwork and improve students' social skills.", kr: "그룹 활동은 팀워크를 북돋우고 학생들의 사회성을 향상시킵니다." },
+                { en: "By cooperating with parents, we can create a consistent learning environment.", kr: "학부모와 협력함으로써 우리는 일관된 학습 환경을 조성할 수 있습니다." },
+                { en: "I will participate in professional learning communities to share teaching experiences.", kr: "저는 전문적 학습 공동체에 참여하여 수업 경험을 공유하겠습니다." },
+                { en: "Open communication builds trust with parents and colleagues.", kr: "열린 소통은 학부모 및 동료와의 신뢰를 쌓아줍니다." },
+                { en: "I will send regular newsletters to parents to keep them informed about class activities.", kr: "학급 활동을 알리기 위해 정기적으로 학부모님께 소식지를 보내겠습니다." },
+                { en: "I will invite parents to open classes so they can see their child's progress.", kr: "학부모 공개 수업을 열어 자녀의 성장 과정을 볼 수 있게 하겠습니다." },
+                { en: "I will ask senior teachers for advice because nothing is more practical than experience.", kr: "경험보다 실질적인 것은 없으므로, 선배 교사들에게 조언을 구하겠습니다." },
+                { en: "Collaborative atmosphere between teachers will also make students collaborate.", kr: "교사들 간의 협력적인 분위기는 학생들도 협력하게 만들 것입니다." }
+            ]
+        },
+        {
+            category: "5. 활동 및 게임 활용 방안 (Activities for Interview)",
+            items: [
+                { en: "I will use games to lower students' affective filter and boost their confidence.", kr: "학생들의 정의적 여과막을 낮추고 자신감을 높이기 위해 게임을 활용하겠습니다." },
+                { en: "Role-plays allow students to practice communication in real-life contexts.", kr: "역할극은 학생들이 실생활 맥락에서 의사소통을 연습할 수 있게 해줍니다." },
+                { en: "I will organize information gap tasks to encourage students to communicate with each other to solve problems.", kr: "정보차 활동을 구성하여 학생들이 문제 해결을 위해 서로 소통하도록 장려하겠습니다." },
+                { en: "Songs and chants help students improve their intonation and pronunciation naturally.", kr: "노래와 찬트는 학생들이 억양과 발음을 자연스럽게 향상시키도록 돕습니다." },
+                { en: "I will use board games to help students review key expressions in a fun way.", kr: "보드게임을 활용하여 학생들이 핵심 표현을 재미있게 복습하도록 돕겠습니다." },
+                { en: "Through cooperative games, students can learn how to work together and respect others.", kr: "협동 게임을 통해 학생들은 함께 일하는 법과 타인을 존중하는 법을 배울 수 있습니다." },
+                { en: "I will use Total Physical Response (TPR) activities to help students understand instructions without pressure.", kr: "TPR 활동을 사용하여 학생들이 부담 없이 지시 사항을 이해하도록 돕겠습니다." },
+                { en: "I will select games that match the students' proficiency level to prevent frustration.", kr: "좌절감을 방지하기 위해 학생들의 숙달도에 맞는 게임을 선정하겠습니다." }
+            ]
+        }
+    ];
+
+    // --- State Management ---
+    let appData = [];
+    let currentMode = 'none'; 
+    let currentTab = 'all'; 
+    let bookmarks = JSON.parse(localStorage.getItem('magicNoteBookmarks_v3')) || []; 
+    
+    let currentEditTarget = null; 
+    let pendingDeleteTarget = null;
+
+    // --- Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        window.speechSynthesis.getVoices();
+        initData();
+        updateHeaderInfo();
+        renderContent();
+    });
+
+    // --- Data Logic ---
+    function generateUUID() { return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 10000); }
+
+    function initData() {
+        const savedData = localStorage.getItem('magicNoteData_v4');
+        if (savedData) {
+            appData = JSON.parse(savedData);
+        } else {
+            appData = defaultData.map(cat => ({
+                ...cat,
+                items: cat.items.map(item => ({ ...item, id: generateUUID() }))
+            }));
+            saveData();
+        }
+    }
+
+    function saveData() { localStorage.setItem('magicNoteData_v4', JSON.stringify(appData)); }
+
+    // --- UI Logic ---
+    function updateHeaderInfo() {
+        const targetDate = new Date('2026-01-07T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const diffTime = targetDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        const dDayElement = document.getElementById('d-day-display');
+        if (diffDays > 0) dDayElement.innerText = `🍀 면접까지 D-${diffDays}`;
+        else if (diffDays === 0) dDayElement.innerText = `🔥 면접 D-Day`;
+        else dDayElement.innerText = `🏁 면접 D+${Math.abs(diffDays)}`;
+    }
+
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(mode === 'none' && btn.innerText.includes('전체')) btn.classList.add('active');
+            if(mode === 'en' && btn.innerText.includes('영어')) btn.classList.add('active');
+        });
+        const container = document.getElementById('content-area');
+        if(mode === 'en') container.classList.add('blur-en');
+        else container.classList.remove('blur-en');
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        event.target.classList.add('active');
+        renderContent();
+    }
+
+    function toggleBookmark(event, id) {
+        event.stopPropagation();
+        if (bookmarks.includes(id)) {
+            bookmarks = bookmarks.filter(bid => bid !== id);
+        } else {
+            bookmarks.push(id);
+        }
+        localStorage.setItem('magicNoteBookmarks_v3', JSON.stringify(bookmarks));
+        renderContent();
+    }
+
+    function toggleAccordion(header) {
+        const content = header.nextElementSibling;
+        const isOpen = content.classList.contains('open');
+        if (!isOpen) content.classList.add('open');
+        else content.classList.remove('open');
+    }
+
+    function playAudio(event, text) {
+        event.stopPropagation();
+        window.speechSynthesis.cancel(); 
+        const cleanText = text.replace(/<[^>]*>/g, ' ');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        const voices = window.speechSynthesis.getVoices();
+        let targetVoice = voices.find(v => v.name.includes('Google US English')) || 
+                          voices.find(v => v.name.includes('Samantha')) ||
+                          voices.find(v => v.name.includes('Microsoft Zira')) ||
+                          voices.find(v => v.name.toLowerCase().includes('female')) ||
+                          voices.find(v => v.lang === 'en-US');
+        if (targetVoice) utterance.voice = targetVoice;
+        utterance.lang = 'en-US';
+        utterance.rate = 0.85; 
+        utterance.pitch = 1.05; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // --- Modal Logic ---
+    function openEditModal(event, catIndex, itemId = null) {
+        event.stopPropagation();
+        currentEditTarget = { catIndex, itemId };
+        if (itemId) {
+            const item = appData[catIndex].items.find(i => i.id === itemId);
+            document.getElementById('editModalTitle').innerText = "✏️ 문장 수정하기";
+            document.getElementById('inputEn').value = item.en.replace(/<br\s*\/?>/gi, '\n');
+            document.getElementById('inputKr').value = item.kr.replace(/<br\s*\/?>/gi, '\n');
+        } else {
+            document.getElementById('editModalTitle').innerText = "📝 새 문장 추가";
+            document.getElementById('inputEn').value = '';
+            document.getElementById('inputKr').value = '';
+        }
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; currentEditTarget = null; }
+
+    function saveItem() {
+        const en = document.getElementById('inputEn').value.trim().replace(/\n/g, '<br>');
+        const kr = document.getElementById('inputKr').value.trim().replace(/\n/g, '<br>');
+        if(!en || !kr) { alert("영어와 한글 문장을 모두 입력해주세요!"); return; }
+        const { catIndex, itemId } = currentEditTarget;
+        if (itemId) {
+            const item = appData[catIndex].items.find(i => i.id === itemId);
+            if(item) { item.en = en; item.kr = kr; }
+        } else {
+            appData[catIndex].items.push({ id: generateUUID(), en: en, kr: kr });
+        }
+        saveData(); closeEditModal(); renderContent();
+    }
+
+    function openDeleteModal(event, catIndex, itemId) {
+        event.stopPropagation();
+        pendingDeleteTarget = { catIndex, itemId };
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; pendingDeleteTarget = null; }
+
+    function confirmDelete() {
+        if (!pendingDeleteTarget) return;
+        const { catIndex, itemId } = pendingDeleteTarget;
+        appData[catIndex].items = appData[catIndex].items.filter(item => item.id !== itemId);
+        if (bookmarks.includes(itemId)) {
+            bookmarks = bookmarks.filter(bid => bid !== itemId);
+            localStorage.setItem('magicNoteBookmarks_v3', JSON.stringify(bookmarks));
+        }
+        saveData(); closeDeleteModal(); renderContent();
+    }
+
+    // --- Render Logic ---
+    function renderContent() {
+        const container = document.getElementById('content-area');
+        container.innerHTML = '';
+        if(currentMode === 'en') container.classList.add('blur-en');
+        else container.classList.remove('blur-en');
+
+        if (currentTab === 'bookmark') renderBookmarks(container);
+        else renderAll(container);
+    }
+
+    const feedbackFormHTML = `
+        <div class="feedback-section">
+            <h3 class="feedback-title">앱 피드백</h3>
+            <p class="feedback-desc">
+                앱을 사용하시면서 느낀 좋은 점, 불편한 점, 개선 아이디어 등을 자유롭게 남겨주세요!<br>
+                <a href="https://blog.naver.com/codenamedream" target="_blank" class="feedback-link">(https://blog.naver.com/codenamedream)</a>
+            </p>
+            <form 
+                action="https://docs.google.com/forms/d/e/1FAIpQLSdhsF8CtD0CPx6z6c7O6nfye03OzfjEmqrzswz4DAIqyN1TOw/formResponse" 
+                method="POST" 
+                target="hidden_iframe"
+                onsubmit="return onFeedbackSubmit()"
+            >
+                <textarea name="entry.677219120" id="feedbackText" class="feedback-input" placeholder="여기에 의견을 입력하세요..." required></textarea>
+                <button type="submit" class="feedback-btn">의견 제출하기</button>
+                <p id="feedback-success-msg">✅ 소중한 의견 감사합니다!</p>
+            </form>
+        </div>
+    `;
+
+    function createCardHTML(item, catIndex) {
+        const isBookmarked = bookmarks.includes(item.id);
+        return `
+            <div class="sentence-card" onclick="void(0)">
+                <div class="card-tools">
+                    <button class="tool-btn edit" onclick="openEditModal(event, ${catIndex}, '${item.id}')">✏️</button>
+                    <button class="tool-btn delete" onclick="openDeleteModal(event, ${catIndex}, '${item.id}')">🗑️</button>
+                    <button class="tool-btn audio" onclick="playAudio(event, \`${item.en.replace(/'/g, "\\'")}\`)">🔊</button>
+                    <button class="tool-btn star ${isBookmarked ? 'active' : ''}" onclick="toggleBookmark(event, '${item.id}')">
+                        ${isBookmarked ? '★' : '☆'}
+                    </button>
+                </div>
+                <div class="text-group">
+                    <div class="label">English</div>
+                    <div class="text-content en-text">${item.en}</div>
+                </div>
+                <div class="text-group">
+                    <div class="label">Korean</div>
+                    <div class="text-content kr-text">${item.kr}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderAll(container) {
+        appData.forEach((cat, catIndex) => {
+            const block = document.createElement('div');
+            block.className = 'category-block';
+            let itemsHTML = '';
+            cat.items.forEach(item => { itemsHTML += createCardHTML(item, catIndex); });
+            itemsHTML += `<div class="add-btn-area"><button class="add-btn" onclick="openEditModal(event, ${catIndex})">➕ 문장 추가하기</button></div>`;
+            block.innerHTML = `<div class="category-header" onclick="toggleAccordion(this)">${cat.category} <span>▼</span></div><div class="category-content ${catIndex === 0 ? 'open' : ''}">${itemsHTML}</div>`;
+            container.appendChild(block);
+        });
+        container.insertAdjacentHTML('beforeend', feedbackFormHTML);
+    }
+
+    function renderBookmarks(container) {
+        const bookmarkedItems = [];
+        bookmarks.forEach(bmId => {
+            for (let cIdx = 0; cIdx < appData.length; cIdx++) {
+                const found = appData[cIdx].items.find(i => i.id === bmId);
+                if (found) { bookmarkedItems.push({ ...found, catIndex: cIdx }); break; }
+            }
+        });
+        if (bookmarkedItems.length === 0) {
+            container.innerHTML = `<div class="empty-state"><h3>아직 저장된 문장이 없어요!</h3><p>중요한 문장에 별표(⭐)를 눌러보세요.</p></div>`;
+            container.insertAdjacentHTML('beforeend', feedbackFormHTML);
+            return;
+        }
+        const block = document.createElement('div');
+        block.className = 'category-block';
+        let itemsHTML = '';
+        bookmarkedItems.forEach(item => { itemsHTML += createCardHTML(item, item.catIndex); });
+        block.innerHTML = `<div class="category-header" style="cursor: default;">내 단어장 (${bookmarkedItems.length})</div><div class="category-content open">${itemsHTML}</div>`;
+        container.appendChild(block);
+        container.insertAdjacentHTML('beforeend', feedbackFormHTML);
+    }
+</script>
+
+<!-- 4. Firebase Module Script for Global Visitor Counter -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const firebaseConfig = JSON.parse(__firebase_config);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+    async function initVisitorCounter() {
+        try {
+            // 1. Sign In Anonymously
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+
+            const userId = auth.currentUser?.uid;
+            if (!userId) return;
+
+            // 2. Reference to the global counter document
+            // Path: artifacts/{appId}/public/data/stats/visitor
+            const statsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stats');
+            const visitorDocRef = doc(statsCollection, 'visitor');
+
+            // 3. Check Local Storage to prevent multiple increments from same browser
+            const hasVisited = localStorage.getItem('magicNoteHasVisited_Global');
+            
+            let currentCount = 0;
+
+            // 4. Get current count from Firestore
+            const docSnap = await getDoc(visitorDocRef);
+            
+            if (docSnap.exists()) {
+                currentCount = docSnap.data().count || 0;
+            }
+
+            // 5. Increment logic
+            if (!hasVisited) {
+                // New visitor for this browser: Increment global count
+                currentCount++;
+                await setDoc(visitorDocRef, { count: currentCount });
+                localStorage.setItem('magicNoteHasVisited_Global', 'true');
+            }
+
+            // 6. Display Count
+            const visitorDisplay = document.getElementById('visitor-display');
+            if(visitorDisplay) {
+                visitorDisplay.innerText = `👥 총 방문자: ${currentCount.toLocaleString()}명`;
+            }
+
+        } catch (error) {
+            console.error("Visitor Counter Error:", error);
+            const visitorDisplay = document.getElementById('visitor-display');
+            if(visitorDisplay) visitorDisplay.innerText = "👥 방문자 집계 중...";
+        }
+    }
+
+    // Run on load
+    initVisitorCounter();
+</script>
+
+</body>
+</html>

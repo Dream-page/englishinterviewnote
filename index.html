@@ -7,16 +7,14 @@
     
     <style>
         :root {
-            /* Clean System Fonts */
             --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            
-            --primary-color: #10b981; /* Mint Green */
+            --primary-color: #10b981;
             --primary-dark: #059669;
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --sub-text: #6b7280;
-            --accent-color: #f59e0b; /* Amber */
+            --accent-color: #f59e0b;
             --danger-color: #ef4444;
             --blue-color: #3b82f6;
             --dark-btn: #374151;
@@ -52,18 +50,43 @@
         .category-header span { font-size: 0.8rem; color: #9ca3af; }
         .category-content { display: none; background-color: #fdfdfd; }
         .category-content.open { display: block; border-top: 1px solid #f3f4f6; }
+        
+        /* Sentence Card */
         .sentence-card { padding: 20px; border-bottom: 1px solid #f3f4f6; position: relative; transition: background-color 0.2s; }
         .sentence-card:hover { background-color: #fafafa; }
         .sentence-card:last-child { border-bottom: none; }
-        .card-tools { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-bottom: 8px; }
-        .tool-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; color: #d1d5db; transition: all 0.2s; padding: 4px; display: flex; align-items: center; justify-content: center; }
-        .tool-btn:hover { color: var(--sub-text); transform: scale(1.1); }
+        
+        /* Smaller Tools */
+        .card-tools { 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center; 
+            gap: 6px; /* Reduced gap */
+            margin-bottom: 6px; 
+        }
+        .tool-btn { 
+            background: none; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 1rem; /* Reduced size (was 1.2rem) */
+            color: #d1d5db; 
+            transition: all 0.2s; 
+            padding: 6px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border-radius: 50%;
+        }
+        .tool-btn:hover { color: var(--sub-text); background-color: #f3f4f6; }
         .tool-btn.star.active { color: var(--accent-color); }
         .tool-btn.audio:hover { color: var(--primary-color); }
-        .tool-btn.delete { font-size: 1rem; color: #ef4444; opacity: 0.6; }
-        .tool-btn.delete:hover { opacity: 1; background-color: #fee2e2; border-radius: 4px; }
-        .tool-btn.edit { font-size: 1rem; color: #3b82f6; opacity: 0.6; }
-        .tool-btn.edit:hover { opacity: 1; background-color: #dbeafe; border-radius: 4px; }
+        
+        /* Specific Tool Sizes */
+        .tool-btn.delete { font-size: 0.9rem; color: #ef4444; opacity: 0.5; }
+        .tool-btn.delete:hover { opacity: 1; background-color: #fee2e2; }
+        .tool-btn.edit { font-size: 0.9rem; color: #3b82f6; opacity: 0.5; }
+        .tool-btn.edit:hover { opacity: 1; background-color: #dbeafe; }
+
         .text-group { margin-bottom: 12px; }
         .label { font-size: 0.7rem; font-weight: 700; color: #9ca3af; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
         .text-content { font-size: 1.05rem; line-height: 1.6; transition: all 0.3s; cursor: pointer; border-radius: 6px; padding: 2px 0; }
@@ -114,12 +137,11 @@
     <!-- Feedback Logic -->
     <script>
         function onFeedbackSubmit() {
-            // 사용자에게 보여줄 성공 메시지 처리
             setTimeout(function() {
                 document.getElementById('feedback-success-msg').style.display = 'block';
                 document.getElementById('feedbackText').value = "";
             }, 100);
-            return true; // 폼 전송 진행
+            return true; 
         }
     </script>
 </head>
@@ -129,8 +151,7 @@
     <header>
         <div class="top-info-bar">
             <span class="d-day-badge" id="d-day-display">🍀 면접까지 D-??</span>
-            <!-- Visitor Count will be updated by Firebase -->
-            <span class="visitor-badge" id="visitor-display">👥 로딩 중...</span>
+            <span class="visitor-badge" id="visitor-display">👥 집계 중...</span>
         </div>
         <h1>🪄 2026 초등 임용 2차 <br> 영어면접 만능 암기장</h1>
         <p class="subtitle">영어 면접은 여기서 끝!</p>
@@ -180,11 +201,43 @@
     </div>
 </div>
 
-<!-- Hidden Iframe for Feedback -->
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
-<!-- Main Application Logic -->
 <script>
+    // --- Global Visitor Counter Logic (Using Free API) ---
+    // This works on any hosting without config
+    function updateVisitorCount() {
+        const namespace = 'magic-note-2026-dream';
+        const key = 'visits';
+        const visitorDisplay = document.getElementById('visitor-display');
+        
+        // Check local storage to prevent self-increment on refresh
+        const hasVisited = localStorage.getItem('hasVisitedSite_v1');
+        
+        let url = '';
+        if (!hasVisited) {
+            // First time: Increment (UP)
+            url = `https://api.counterapi.dev/v1/${namespace}/${key}/up`;
+        } else {
+            // Returning: Just Read (Get)
+            url = `https://api.counterapi.dev/v1/${namespace}/${key}`;
+        }
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.count) {
+                    visitorDisplay.innerText = `👥 총 방문자: ${data.count.toLocaleString()}명`;
+                    // Mark as visited
+                    if(!hasVisited) localStorage.setItem('hasVisitedSite_v1', 'true');
+                }
+            })
+            .catch(err => {
+                console.log('Counter Error:', err);
+                visitorDisplay.innerText = '👥 방문자: 집계 중';
+            });
+    }
+
     // --- Default Data ---
     const defaultData = [
         {
@@ -280,6 +333,7 @@
         initData();
         updateHeaderInfo();
         renderContent();
+        updateVisitorCount(); // Start Counter
     });
 
     // --- Data Logic ---
@@ -433,6 +487,7 @@
         else renderAll(container);
     }
 
+    // --- FEEDBACK Logic (Pure HTML + Target Iframe) ---
     const feedbackFormHTML = `
         <div class="feedback-section">
             <h3 class="feedback-title">앱 피드백</h3>
@@ -511,72 +566,6 @@
         container.appendChild(block);
         container.insertAdjacentHTML('beforeend', feedbackFormHTML);
     }
-</script>
-
-<!-- 4. Firebase Module Script for Global Visitor Counter -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    const firebaseConfig = JSON.parse(__firebase_config);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-    async function initVisitorCounter() {
-        try {
-            // 1. Sign In Anonymously
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            const userId = auth.currentUser?.uid;
-            if (!userId) return;
-
-            // 2. Reference to the global counter document
-            // Path: artifacts/{appId}/public/data/stats/visitor
-            const statsCollection = collection(db, 'artifacts', appId, 'public', 'data', 'stats');
-            const visitorDocRef = doc(statsCollection, 'visitor');
-
-            // 3. Check Local Storage to prevent multiple increments from same browser
-            const hasVisited = localStorage.getItem('magicNoteHasVisited_Global');
-            
-            let currentCount = 0;
-
-            // 4. Get current count from Firestore
-            const docSnap = await getDoc(visitorDocRef);
-            
-            if (docSnap.exists()) {
-                currentCount = docSnap.data().count || 0;
-            }
-
-            // 5. Increment logic
-            if (!hasVisited) {
-                // New visitor for this browser: Increment global count
-                currentCount++;
-                await setDoc(visitorDocRef, { count: currentCount });
-                localStorage.setItem('magicNoteHasVisited_Global', 'true');
-            }
-
-            // 6. Display Count
-            const visitorDisplay = document.getElementById('visitor-display');
-            if(visitorDisplay) {
-                visitorDisplay.innerText = `👥 총 방문자: ${currentCount.toLocaleString()}명`;
-            }
-
-        } catch (error) {
-            console.error("Visitor Counter Error:", error);
-            const visitorDisplay = document.getElementById('visitor-display');
-            if(visitorDisplay) visitorDisplay.innerText = "👥 방문자 집계 중...";
-        }
-    }
-
-    // Run on load
-    initVisitorCounter();
 </script>
 
 </body>

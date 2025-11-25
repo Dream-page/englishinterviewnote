@@ -7,14 +7,16 @@
     
     <style>
         :root {
+            /* Clean System Fonts */
             --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            --primary-color: #10b981;
+            
+            --primary-color: #10b981; /* Mint Green */
             --primary-dark: #059669;
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-color: #1f2937;
             --sub-text: #6b7280;
-            --accent-color: #f59e0b;
+            --accent-color: #f59e0b; /* Amber */
             --danger-color: #ef4444;
             --blue-color: #3b82f6;
             --dark-btn: #374151;
@@ -28,9 +30,10 @@
         header { background-color: var(--card-bg); padding: 20px; padding-top: 50px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); z-index: 10; position: relative; }
         .top-info-bar { position: absolute; top: 10px; right: 15px; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 0.75rem; font-weight: 600; }
         .d-day-badge { color: var(--danger-color); background-color: #fef2f2; padding: 4px 10px; border-radius: 12px; border: 1px solid #fee2e2; display: flex; align-items: center; gap: 4px; }
-        .visitor-badge { color: var(--blue-color); background-color: #eff6ff; padding: 4px 10px; border-radius: 12px; border: 1px solid #dbeafe; display: flex; align-items: center; gap: 4px; }
+        
         h1 { font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 10px; text-align: center; font-weight: 800; line-height: 1.3; }
         .subtitle { text-align: center; font-size: 0.9rem; color: var(--sub-text); margin-bottom: 15px; font-weight: 500; }
+        
         .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 10px; }
         .mode-btn { padding: 8px 16px; border: 1px solid #d1d5db; background: white; border-radius: 20px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; font-weight: 600; color: var(--sub-text); }
         .mode-btn.active { background-color: var(--primary-color); color: white; border-color: var(--primary-color); box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3); }
@@ -50,41 +53,27 @@
         .category-header span { font-size: 0.8rem; color: #9ca3af; }
         .category-content { display: none; background-color: #fdfdfd; }
         .category-content.open { display: block; border-top: 1px solid #f3f4f6; }
-        
-        /* Sentence Card */
         .sentence-card { padding: 20px; border-bottom: 1px solid #f3f4f6; position: relative; transition: background-color 0.2s; }
         .sentence-card:hover { background-color: #fafafa; }
         .sentence-card:last-child { border-bottom: none; }
         
-        /* Smaller Tools */
-        .card-tools { 
-            display: flex; 
-            justify-content: flex-end; 
-            align-items: center; 
-            gap: 6px; /* Reduced gap */
-            margin-bottom: 6px; 
-        }
+        /* Small Tools */
+        .card-tools { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-bottom: 6px; }
         .tool-btn { 
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            font-size: 1rem; /* Reduced size (was 1.2rem) */
-            color: #d1d5db; 
-            transition: all 0.2s; 
-            padding: 6px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
+            background: none; border: none; cursor: pointer; 
+            font-size: 0.85rem; 
+            width: 28px; height: 28px; 
+            color: #d1d5db; transition: all 0.2s; padding: 0;
+            display: flex; align-items: center; justify-content: center; 
             border-radius: 50%;
         }
-        .tool-btn:hover { color: var(--sub-text); background-color: #f3f4f6; }
+        .tool-btn:hover { color: var(--sub-text); background-color: #f3f4f6; transform: scale(1.1); }
+        .tool-btn.star { font-size: 1rem; }
         .tool-btn.star.active { color: var(--accent-color); }
         .tool-btn.audio:hover { color: var(--primary-color); }
-        
-        /* Specific Tool Sizes */
-        .tool-btn.delete { font-size: 0.9rem; color: #ef4444; opacity: 0.5; }
+        .tool-btn.delete { color: #ef4444; opacity: 0.5; }
         .tool-btn.delete:hover { opacity: 1; background-color: #fee2e2; }
-        .tool-btn.edit { font-size: 0.9rem; color: #3b82f6; opacity: 0.5; }
+        .tool-btn.edit { color: #3b82f6; opacity: 0.5; }
         .tool-btn.edit:hover { opacity: 1; background-color: #dbeafe; }
 
         .text-group { margin-bottom: 12px; }
@@ -112,9 +101,9 @@
         .feedback-btn:hover { background-color: #1f2937; }
         .feedback-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
 
-        /* Success Message */
-        #feedback-success-msg { display: none; color: #10b981; font-weight: 700; text-align: center; margin-top: 12px; font-size: 0.95rem; animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        /* Success Message (Green Text) */
+        #feedback-success-msg { display: none; color: #10b981; font-weight: 700; text-align: center; margin-top: 15px; font-size: 0.95rem; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 2000; }
@@ -151,7 +140,6 @@
     <header>
         <div class="top-info-bar">
             <span class="d-day-badge" id="d-day-display">🍀 면접까지 D-??</span>
-            <span class="visitor-badge" id="visitor-display">👥 집계 중...</span>
         </div>
         <h1>🪄 2026 초등 임용 2차 <br> 영어면접 만능 암기장</h1>
         <p class="subtitle">영어 면접은 여기서 끝!</p>
@@ -162,7 +150,7 @@
     </header>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('all')">주제별 카드</div>
+        <div class="tab active" onclick="switchTab('all')">주제별 문장</div>
         <div class="tab" onclick="switchTab('bookmark')">My Pick ⭐</div>
     </div>
 
@@ -204,38 +192,19 @@
 <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
 
 <script>
-    // --- Global Visitor Counter Logic (Using Free API) ---
-    // This works on any hosting without config
-    function updateVisitorCount() {
-        const namespace = 'magic-note-2026-dream';
-        const key = 'visits';
-        const visitorDisplay = document.getElementById('visitor-display');
+    // --- UI & App Logic ---
+    
+    function updateHeaderInfo() {
+        const targetDate = new Date('2026-01-07T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const diffTime = targetDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         
-        // Check local storage to prevent self-increment on refresh
-        const hasVisited = localStorage.getItem('hasVisitedSite_v1');
-        
-        let url = '';
-        if (!hasVisited) {
-            // First time: Increment (UP)
-            url = `https://api.counterapi.dev/v1/${namespace}/${key}/up`;
-        } else {
-            // Returning: Just Read (Get)
-            url = `https://api.counterapi.dev/v1/${namespace}/${key}`;
-        }
-
-        fetch(url)
-            .then(response => response.json())
-            .then(data => {
-                if(data && data.count) {
-                    visitorDisplay.innerText = `👥 총 방문자: ${data.count.toLocaleString()}명`;
-                    // Mark as visited
-                    if(!hasVisited) localStorage.setItem('hasVisitedSite_v1', 'true');
-                }
-            })
-            .catch(err => {
-                console.log('Counter Error:', err);
-                visitorDisplay.innerText = '👥 방문자: 집계 중';
-            });
+        const dDayElement = document.getElementById('d-day-display');
+        if (diffDays > 0) dDayElement.innerText = `🍀 면접까지 D-${diffDays}`;
+        else if (diffDays === 0) dDayElement.innerText = `🔥 면접 D-Day`;
+        else dDayElement.innerText = `🏁 면접 D+${Math.abs(diffDays)}`;
     }
 
     // --- Default Data ---
@@ -245,7 +214,7 @@
             items: [
                 { en: "Let me answer the question number 1.", kr: "1번 문항에 대해 답변드리겠습니다." },
                 { en: "I'd like to talk about strategies to increase student motivation.", kr: "학생들의 동기를 높이기 위한 전략에 대해 말씀드리겠습니다." },
-                { en: "There are three things I can do to solve this problem.<br>First, I will use visual aids.<br>Second, I will use group activities.", kr: "이 문제를 해결하기 위해 제가 할 수 있는 3가지 방법이 있습니다.<br>첫째, 시각 자료를 활용하겠습니다.<br>둘째, 모둠 활동을 사용하겠습니다." },
+                { en: "First, I will use visual aids.<br>Second, I will use group activities.", kr: "첫째, 시각 자료를 활용하겠습니다.<br>둘째, 모둠 활동을 사용하겠습니다." },
                 { en: "If I become a teacher, I will try my best to support every student.", kr: "제가 교사가 된다면, 모든 학생을 지원하기 위해 최선을 다하겠습니다." },
                 { en: "By using these methods, the English class will be much better.", kr: "이러한 방법들을 사용함으로써, 영어 수업은 훨씬 더 좋아질 것입니다." },
                 { en: "That is all for my answer.<br>Thank you for listening.", kr: "이상입니다.<br>경청해 주셔서 감사합니다." }
@@ -333,7 +302,6 @@
         initData();
         updateHeaderInfo();
         renderContent();
-        updateVisitorCount(); // Start Counter
     });
 
     // --- Data Logic ---
@@ -354,21 +322,7 @@
 
     function saveData() { localStorage.setItem('magicNoteData_v4', JSON.stringify(appData)); }
 
-    // --- UI Logic ---
-    function updateHeaderInfo() {
-        const targetDate = new Date('2026-01-07T00:00:00');
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
-        const diffTime = targetDate - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        
-        const dDayElement = document.getElementById('d-day-display');
-        if (diffDays > 0) dDayElement.innerText = `🍀 면접까지 D-${diffDays}`;
-        else if (diffDays === 0) dDayElement.innerText = `🔥 면접 D-Day`;
-        else dDayElement.innerText = `🏁 면접 D+${Math.abs(diffDays)}`;
-    }
-
+    // --- UI Helpers ---
     function setMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -476,7 +430,6 @@
         saveData(); closeDeleteModal(); renderContent();
     }
 
-    // --- Render Logic ---
     function renderContent() {
         const container = document.getElementById('content-area');
         container.innerHTML = '';
@@ -487,7 +440,6 @@
         else renderAll(container);
     }
 
-    // --- FEEDBACK Logic (Pure HTML + Target Iframe) ---
     const feedbackFormHTML = `
         <div class="feedback-section">
             <h3 class="feedback-title">앱 피드백</h3>

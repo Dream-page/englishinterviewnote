@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 초등임용 2차 영어면접 만능틀 암기장</title>
+    <title>2026 초등임용 영어면접 만능틀 노트</title>
     
     <style>
         :root {
@@ -150,7 +150,7 @@
     </header>
 
     <div class="tabs">
-        <div class="tab active" onclick="switchTab('all')">주제별 카드</div>
+        <div class="tab active" onclick="switchTab('all')">주제별 문장</div>
         <div class="tab" onclick="switchTab('bookmark')">My Pick ⭐</div>
     </div>
 
@@ -207,7 +207,7 @@
         else dDayElement.innerText = `🏁 면접 D+${Math.abs(diffDays)}`;
     }
 
-    // --- Default Data ---
+    // --- Default Data (Updated: Removed the unwanted sentence) ---
     const defaultData = [
         {
             category: "0. 만능 오프닝 & 클로징 (Opening/Closing)",
@@ -291,7 +291,7 @@
     let appData = [];
     let currentMode = 'none'; 
     let currentTab = 'all'; 
-    let bookmarks = JSON.parse(localStorage.getItem('magicNoteBookmarks_v3')) || []; 
+    let bookmarks = JSON.parse(localStorage.getItem('magicNoteBookmarks_v5')) || []; // Version bumped
     
     let currentEditTarget = null; 
     let pendingDeleteTarget = null;
@@ -304,11 +304,12 @@
         renderContent();
     });
 
-    // --- Data Logic ---
+    // --- Data Logic (Version bump to v5 force reset) ---
     function generateUUID() { return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 10000); }
 
     function initData() {
-        const savedData = localStorage.getItem('magicNoteData_v4');
+        // Changed key to 'magicNoteData_v5' to force load new defaults
+        const savedData = localStorage.getItem('magicNoteData_v5');
         if (savedData) {
             appData = JSON.parse(savedData);
         } else {
@@ -320,9 +321,8 @@
         }
     }
 
-    function saveData() { localStorage.setItem('magicNoteData_v4', JSON.stringify(appData)); }
+    function saveData() { localStorage.setItem('magicNoteData_v5', JSON.stringify(appData)); }
 
-    // --- UI Helpers ---
     function setMode(mode) {
         currentMode = mode;
         document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -349,7 +349,7 @@
         } else {
             bookmarks.push(id);
         }
-        localStorage.setItem('magicNoteBookmarks_v3', JSON.stringify(bookmarks));
+        localStorage.setItem('magicNoteBookmarks_v5', JSON.stringify(bookmarks));
         renderContent();
     }
 
@@ -425,7 +425,7 @@
         appData[catIndex].items = appData[catIndex].items.filter(item => item.id !== itemId);
         if (bookmarks.includes(itemId)) {
             bookmarks = bookmarks.filter(bid => bid !== itemId);
-            localStorage.setItem('magicNoteBookmarks_v3', JSON.stringify(bookmarks));
+            localStorage.setItem('magicNoteBookmarks_v5', JSON.stringify(bookmarks));
         }
         saveData(); closeDeleteModal(); renderContent();
     }
